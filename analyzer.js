@@ -7,7 +7,6 @@ function makeLexicalAnalysis() {
         var table = [];
         var tmpExpression = expression;
 
-
         while (tmpExpression.length !== 0) {
             if (isNumber(charAtFirstPosition(tmpExpression))) {
                 table.push({
@@ -33,16 +32,16 @@ function makeLexicalAnalysis() {
             }
         }
 
-        var k = '<thead><tr><th>LEXEM</th><th>TYPE</th><th>VALUE</th></tr></thead><tbody>'
-        for (i = 0; i < table.length; i++) {
-            k += '<tr>';
-            k += '<td>' + table[i].lexem + '</td>';
-            k += '<td>' + table[i].type + '</td>';
-            k += '<td>' + table[i].value + '</td>';
-            k += '</tr>';
+        var strTable = '<thead><tr><th>LEXEM</th><th>TYPE</th><th>VALUE</th></tr></thead><tbody>'
+        for (let object of table) {
+            strTable += '<tr>';
+            strTable += '<td>' + object.lexem + '</td>';
+            strTable += '<td>' + object.type + '</td>';
+            strTable += '<td>' + object.value + '</td>';
+            strTable += '</tr>';
         }
-        k += '</tbody>';
-        document.getElementById('tableLexem').innerHTML = k;
+        strTable += '</tbody>';
+        document.getElementById('tableLexem').innerHTML = strTable;
         tada();
     } else {
         alert('Expression contains invalid character(s)');
@@ -81,22 +80,22 @@ function getValueOperator(operator) {
 }
 
 function isSymbol(element) {
-    var Symbols = ['(', ')', '[', ']'];
-    return Symbols.find(Symbol => Symbol === element) !== undefined;
+    var symbols = ['(', ')', '[', ']'];
+    return symbols.find(symbol => symbol === element) !== undefined;
 }
 
 function getSymbol(expression) {
     return expression.match(/\(|\)|\[|\]/)[0];
 }
 
-function getValueSymbol(Symbol) {
-    if (Symbol === '(') {
+function getValueSymbol(symbol) {
+    if (symbol === '(') {
         return 'LPAR';
-    } else if (Symbol === ')') {
+    } else if (symbol === ')') {
         return 'RPAR';
-    } else if (Symbol === '[') {
+    } else if (symbol === '[') {
         return 'LBRACK';
-    } else if (Symbol === ']') {
+    } else if (symbol === ']') {
         return 'RBRACK';
     }
 }
@@ -115,5 +114,5 @@ function charAtFirstPosition(expression) {
 }
 
 function tada() {
-    micron.getEle("#tableLexem").interaction("bounce").duration(".45").timing("ease-out");
+    micron.getEle('#tableLexem').interaction('bounce').duration('.45').timing('ease-out');
 }
