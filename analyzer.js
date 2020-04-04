@@ -33,7 +33,17 @@ function makeLexicalAnalysis() {
             }
         }
 
-        console.log(table);
+        var k = '<thead><tr><th>LEXEM</th><th>TYPE</th><th>VALUE</th></tr></thead><tbody>'
+        for (i = 0; i < table.length; i++) {
+            k += '<tr>';
+            k += '<td>' + table[i].lexem + '</td>';
+            k += '<td>' + table[i].type + '</td>';
+            k += '<td>' + table[i].value + '</td>';
+            k += '</tr>';
+        }
+        k += '</tbody>';
+        document.getElementById('tableLexem').innerHTML = k;
+        tada();
     } else {
         alert('Expression contains invalid character(s)');
     }
@@ -104,3 +114,6 @@ function charAtFirstPosition(expression) {
     return expression.charAt(0);
 }
 
+function tada() {
+    micron.getEle("#tableLexem").interaction("bounce").duration(".45").timing("ease-out");
+}
