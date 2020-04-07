@@ -6,28 +6,40 @@ function makeLexicalAnalysis() {
 
         var table = [];
         var tmpExpression = expression;
+        var lastCharOfPreviousTmpExpression;
 
         while (tmpExpression.length !== 0) {
-            if (isNumber(charAtFirstPosition(tmpExpression))) {
+            if (typeOfFirstElement(tmpExpression, lastCharOfPreviousTmpExpression) === "Number") {
                 table.push({
-                    lexem: getNumber(tmpExpression),
+                    lexem: getNumber(tmpExpression, "Number"),
                     type: 'NUMBER',
-                    value: getNumber(tmpExpression),
+                    value: getNumber(tmpExpression, "Number"),
                 });
-                tmpExpression = tmpExpression.substring(getNumber(tmpExpression).length, tmpExpression.length);
-            } else if (isOperator(charAtFirstPosition(tmpExpression))) {
+                lastCharOfPreviousTmpExpression = getNumber(tmpExpression, "Number").slice(-1);
+                tmpExpression = tmpExpression.substring(getNumber(tmpExpression, "Number").length, tmpExpression.length);
+            } else if (typeOfFirstElement(tmpExpression, lastCharOfPreviousTmpExpression) === "Signed Number") {
+                table.push({
+                    lexem: getNumber(tmpExpression, "Signed Number"),
+                    type: 'NUMBER',
+                    value: getNumber(tmpExpression, "Signed Number"),
+                });
+                lastCharOfPreviousTmpExpression = getNumber(tmpExpression, "Signed Number").slice(-1);
+                tmpExpression = tmpExpression.substring(getNumber(tmpExpression, "Signed Number").length, tmpExpression.length);
+            } else if (typeOfFirstElement(tmpExpression, lastCharOfPreviousTmpExpression) === "Operator") {
                 table.push({
                     lexem: getOperator(tmpExpression),
                     type: 'OPERATOR',
                     value: getValueOperator(getOperator(tmpExpression)),
                 });
+                lastCharOfPreviousTmpExpression = getOperator(tmpExpression).slice(-1);
                 tmpExpression = tmpExpression.substring(getOperator(tmpExpression).length, tmpExpression.length);
-            } else if (isSymbol(charAtFirstPosition(tmpExpression))) {
+            } else if (typeOfFirstElement(tmpExpression, lastCharOfPreviousTmpExpression) === "Symbol") {
                 table.push({
                     lexem: getSymbol(tmpExpression),
                     type: 'SYMBOL',
                     value: getValueSymbol(getSymbol(tmpExpression)),
                 });
+                lastCharOfPreviousTmpExpression = getSymbol(tmpExpression).slice(-1);
                 tmpExpression = tmpExpression.substring(getSymbol(tmpExpression).length, tmpExpression.length);
             }
         }
@@ -48,17 +60,44 @@ function makeLexicalAnalysis() {
     }
 }
 
-function isNumber(element) {
-    return element.match(/[0-9]/) !== null;
+function typeOfFirstElement(expression, previousCharacter) {
+
+    var firstCharacter = expression[0];
+    var nextCharacter = expression[1];
+
+    if (firstCharacter.match(/[0-9]/)) {
+        return "Number";
+    } else if (firstCharacter.match(/\*\*|\*|\+|\-|\//)) {
+        var complexOperators = ['*', '/'];
+
+        if (complexOperators.find(operator => operator === firstCharacter)) {
+            return "Operator";
+        } else {
+            if (previousCharacter !== undefined) {
+                if (!previousCharacter.match(/[0-9]/) && !previousCharacter.match(/\)|\]/)) {
+                    return "Signed Number";
+                } else {
+                    return "Operator";
+                }
+            } else {
+                if (nextCharacter.match(/\(|\[/)) {
+                    return "Operator";
+                } else {
+                    return "Signed Number";
+                }
+            }
+        }
+    } else if (firstCharacter.match(/\(|\)|\[|\]/)) {
+        return "Symbol";
+    }
 }
 
-function getNumber(expression) {
-    return expression.match(/[0-9]*/)[0];
-}
-
-function isOperator(element) {
-    var operators = ['+', '-', '/', '*'];
-    return operators.find(operator => operator === element) !== undefined;
+function getNumber(expression, type) {
+    if (type === "Signed Number") {
+        return expression.match(/(\+|\-)[0-9]*/)[0];
+    } else {
+        return expression.match(/[0-9]*/)[0];
+    }
 }
 
 function getOperator(expression) {
@@ -79,11 +118,6 @@ function getValueOperator(operator) {
     }
 }
 
-function isSymbol(element) {
-    var symbols = ['(', ')', '[', ']'];
-    return symbols.find(symbol => symbol === element) !== undefined;
-}
-
 function getSymbol(expression) {
     return expression.match(/\(|\)|\[|\]/)[0];
 }
@@ -100,6 +134,20 @@ function getValueSymbol(symbol) {
     }
 }
 
+function isNumber(element) {
+    return element.match(/[0-9]/) !== null;
+}
+
+function isOperator(element) {
+    var operators = ['+', '-', '/', '*'];
+    return operators.find(operator => operator === element) !== undefined;
+}
+
+function isSymbol(element) {
+    var symbols = ['(', ')', '[', ']'];
+    return symbols.find(symbol => symbol === element) !== undefined;
+}
+
 function allValidCharacters(expression) {
     for (let element of expression) {
         if (!isNumber(element) && !isOperator(element) && !isSymbol(element)) {
@@ -107,10 +155,6 @@ function allValidCharacters(expression) {
         }
     }
     return true;
-}
-
-function charAtFirstPosition(expression) {
-    return expression.charAt(0);
 }
 
 function tada() {
